@@ -1,0 +1,52 @@
+# Building damage assessment config (xBD)
+hazard: damage
+description: "Building damage assessment using xBD pre/post pairs"
+
+dataset:
+  name: xbd
+  root: data/processed/xbd
+  splits_file: data/splits/xbd.json
+  tile_size: 256
+  num_classes: 3
+  bands:
+    pre: [R, G, B]
+    post: [R, G, B]
+  class_names: [undamaged, partially_damaged, severely_damaged]
+  class_weights: [0.2, 0.4, 0.4]
+  label_mapping:
+    0: 0  # no-damage -> undamaged
+    1: 1  # minor-damage -> partially damaged
+    2: 1  # major-damage -> partially damaged
+    3: 2  # destroyed -> severely damaged
+
+model:
+  architecture: siamese_unet
+  encoder: convnext_tiny
+  encoder_weights: imagenet
+  in_channels: 3  # per branch (pre and post)
+  num_classes: 3
+
+training:
+  seed: 42
+  epochs: 60
+  batch_size: 8
+  num_workers: 4
+  optimizer: adamw
+  lr_encoder: 1.0e-4
+  lr_decoder: 1.0e-3
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  loss: focal_dice
+  focal_gamma: 2.0
+  amp: true
+  early_stopping_patience: 10
+  checkpoint_dir: checkpoints/damage
+
+evaluation:
+  metrics: [macro_f1, per_class_f1, confusion_matrix]
+  export_formats: [geotiff, geojson, csv]
+
+debug:
+  enabled: false
+  max_samples: 50
+  epochs: 2

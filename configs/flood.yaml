@@ -1,0 +1,47 @@
+# Flood segmentation config
+hazard: flood
+description: "Flood extent segmentation using Sen1Floods11"
+
+dataset:
+  name: sen1floods11
+  root: data/processed/sen1floods11
+  splits_file: data/splits/sen1floods11.json
+  tile_size: 256
+  num_classes: 2
+  bands:
+    s2: [B2, B3, B4, B8, B11, B12]  # Blue, Green, Red, NIR, SWIR1, SWIR2
+    s1: [VV, VH]
+    dem: [elevation, slope]
+  class_names: [background, flood]
+  class_weights: [0.3, 0.7]
+
+model:
+  architecture: unet
+  encoder: resnet34
+  encoder_weights: imagenet
+  in_channels: 6  # S2-only baseline; adjust for fusion
+  num_classes: 2
+
+training:
+  seed: 42
+  epochs: 60
+  batch_size: 16
+  num_workers: 4
+  optimizer: adamw
+  lr_encoder: 1.0e-4
+  lr_decoder: 1.0e-3
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  loss: bce_dice
+  amp: true
+  early_stopping_patience: 10
+  checkpoint_dir: checkpoints/flood
+
+evaluation:
+  metrics: [iou, f1, precision, recall]
+  export_formats: [geotiff, geojson, csv]
+
+debug:
+  enabled: false
+  max_samples: 50
+  epochs: 2

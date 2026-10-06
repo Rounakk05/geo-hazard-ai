@@ -1,0 +1,46 @@
+# Landslide segmentation config
+hazard: landslide
+description: "Landslide detection using Landslide4Sense"
+
+dataset:
+  name: landslide4sense
+  root: data/processed/landslide4sense
+  splits_file: data/splits/landslide4sense.json
+  tile_size: 128
+  num_classes: 2
+  bands:
+    s2: [B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11]
+    dem: [elevation, slope]
+  class_names: [background, landslide]
+  class_weights: [0.3, 0.7]
+
+model:
+  architecture: unet
+  encoder: resnet34
+  encoder_weights: imagenet
+  in_channels: 13  # S2 bands + elevation + slope
+  num_classes: 2
+
+training:
+  seed: 42
+  epochs: 60
+  batch_size: 16
+  num_workers: 4
+  optimizer: adamw
+  lr_encoder: 1.0e-4
+  lr_decoder: 1.0e-3
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  loss: bce_dice
+  amp: true
+  early_stopping_patience: 10
+  checkpoint_dir: checkpoints/landslide
+
+evaluation:
+  metrics: [iou, f1, precision, recall]
+  export_formats: [geotiff, geojson, csv]
+
+debug:
+  enabled: false
+  max_samples: 50
+  epochs: 2

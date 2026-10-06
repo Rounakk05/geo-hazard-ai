@@ -1,0 +1,46 @@
+# Wildfire / burn scar segmentation config
+hazard: wildfire
+description: "Wildfire burn scar detection using CaBuAr / Sen2Fire"
+
+dataset:
+  name: cabuar
+  root: data/processed/cabuar
+  splits_file: data/splits/cabuar.json
+  tile_size: 256
+  num_classes: 2
+  bands:
+    s2_pre: [B2, B3, B4, B8, B11, B12]
+    s2_post: [B2, B3, B4, B8, B11, B12]
+  class_names: [background, burned]
+  class_weights: [0.3, 0.7]
+
+model:
+  architecture: siamese_unet
+  encoder: resnet34
+  encoder_weights: imagenet
+  in_channels: 6  # per branch
+  num_classes: 2
+
+training:
+  seed: 42
+  epochs: 60
+  batch_size: 16
+  num_workers: 4
+  optimizer: adamw
+  lr_encoder: 1.0e-4
+  lr_decoder: 1.0e-3
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  loss: bce_dice
+  amp: true
+  early_stopping_patience: 10
+  checkpoint_dir: checkpoints/wildfire
+
+evaluation:
+  metrics: [iou, f1, precision, recall]
+  export_formats: [geotiff, geojson, csv]
+
+debug:
+  enabled: false
+  max_samples: 50
+  epochs: 2

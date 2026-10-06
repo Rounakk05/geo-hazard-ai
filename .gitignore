@@ -1,0 +1,46 @@
+# Data and outputs (share via Kaggle/Drive/HF, not Git)
+data/
+outputs/
+
+# Model checkpoints and weights
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+
+# Large rasters (allow small demo samples in samples/)
+*.tif
+*.tiff
+!samples/*.tif
+!samples/*.tiff
+
+# Secrets
+.env
+*.key
+credentials*.json
+service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Experiment tracking
+wandb/
+mlruns/
+lightning_logs/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
